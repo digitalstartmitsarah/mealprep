@@ -1,5 +1,7 @@
-// Netlify Function: nimmt die Quiz-Antworten entgegen, ruft die Anthropic API auf
-// und gibt einen strukturierten, individuellen Meal-Prep-Wochenplan als JSON zurück.
+// Netlify Function (Schritt 1 von 2): nimmt die Quiz-Antworten entgegen, ruft die
+// Anthropic API auf und gibt NUR den Wochenplan (mit Zubereitung) als JSON zurück.
+// Die Einkaufsliste und Tipps werden danach separat von meal-prep-liste.js erzeugt,
+// damit jede einzelne Anfrage kurz genug bleibt und nicht am Zeitlimit scheitert.
 // Benötigt die Umgebungsvariable ANTHROPIC_API_KEY in den Netlify Site Settings.
 
 exports.handler = async function (event) {
@@ -55,23 +57,16 @@ Antworte ausschließlich mit einem validen JSON Objekt, ohne Markdown, ohne Code
     {
       "tag": "Tag 1",
       "mahlzeiten": [
-        {"typ": "Frühstück", "name": "Name des Gerichts", "beschreibung": "Kurze, konkrete Beschreibung in einem halben Satz", "zubereitung": "Zubereitung in 2 bis 4 kurzen, nummerierten Schritten, durch Zeilenumbruch getrennt, praxistauglich und einfach"},
+        {"typ": "Frühstück", "name": "Name des Gerichts", "beschreibung": "Kurze, konkrete Beschreibung in einem halben Satz", "zubereitung": "Zubereitung in 2 bis 3 kurzen, nummerierten Schritten, durch Zeilenumbruch getrennt, praxistauglich und einfach"},
         {"typ": "Mittag", "name": "...", "beschreibung": "...", "zubereitung": "..."}
       ]
     }
-  ],
-  "einkaufsliste": [
-    {"kategorie": "Obst und Gemüse", "items": ["Zutat 1", "Zutat 2"]},
-    {"kategorie": "Kühlregal", "items": ["..."]},
-    {"kategorie": "Vorratsschrank", "items": ["..."]}
-  ],
-  "prep_tipps": ["Konkreter Tipp, wie am Wochenende oder vorab effizient vorbereitet werden kann, abgestimmt auf den gewählten Prep Stil", "..."],
-  "tipps": ["Ein bis zwei weitere hilfreiche Tipps passend zu Ziel, Budget oder Küchenausstattung"]
+  ]
 }
 
-Nur die Mahlzeiten einplanen, die ausdrücklich gewünscht wurden. Die Anzahl der Tage im Wochenplan muss genau der gewählten Anzahl Tage entsprechen. Die Einkaufsliste muss zu den tatsächlich verwendeten Zutaten im Wochenplan passen, keine Zutaten auflisten, die nirgendwo im Plan vorkommen. Berücksichtige Allergien, Unverträglichkeiten und gemiedene Zutaten unbedingt, verwende niemals Zutaten, die ausgeschlossen wurden. Richte dich nach dem angegebenen Budget und der verfügbaren Kochzeit. Schreib in einem warmen, direkten Du Ton, ohne Gedankenstriche, ohne Floskeln. Sei konkret statt allgemein, erfinde keine Fakten über die Person, die nicht aus ihren Antworten hervorgehen.
+Nur die Mahlzeiten einplanen, die ausdrücklich gewünscht wurden. Die Anzahl der Tage im Wochenplan muss genau der gewählten Anzahl Tage entsprechen. Berücksichtige Allergien, Unverträglichkeiten und gemiedene Zutaten unbedingt, verwende niemals Zutaten, die ausgeschlossen wurden. Richte dich nach dem angegebenen Budget und der verfügbaren Kochzeit. Schreib in einem warmen, direkten Du Ton, ohne Gedankenstriche, ohne Floskeln. Sei konkret statt allgemein, erfinde keine Fakten über die Person, die nicht aus ihren Antworten hervorgehen.
 
-Wichtig für Tempo und Länge: Fass dich kurz. Jede Beschreibung einer Mahlzeit ist maximal ein halber Satz, kein ganzer Absatz. Die Zubereitung pro Mahlzeit hat maximal 4 kurze Schritte, keine langen Erklärungen pro Schritt. Namen der Gerichte kurz halten. Maximal 3 prep_tipps und maximal 2 tipps. Keine langen Erklärungen, direkt auf den Punkt.`;
+Wichtig für Tempo und Länge: Fass dich sehr kurz, das ist wichtiger als Vollständigkeit. Jede Beschreibung einer Mahlzeit ist maximal ein halber Satz. Die Zubereitung pro Mahlzeit hat maximal 3 kurze Schritte von je maximal 8 Wörtern. Namen der Gerichte kurz halten. Keine langen Erklärungen, direkt auf den Punkt.`;
 
   try {
     const apiRes = await fetch("https://api.anthropic.com/v1/messages", {
@@ -83,7 +78,7 @@ Wichtig für Tempo und Länge: Fass dich kurz. Jede Beschreibung einer Mahlzeit 
       },
       body: JSON.stringify({
         model: "claude-haiku-4-5-20251001",
-        max_tokens: 4500,
+        max_tokens: 4000,
         system: systemPrompt,
         messages: [{ role: "user", content: userContent }],
       }),
@@ -103,8 +98,6 @@ Wichtig für Tempo und Länge: Fass dich kurz. Jede Beschreibung einer Mahlzeit 
 
     let cleaned = rawText.replace(/^```json/i, "").replace(/^```/, "").replace(/```$/, "").trim();
 
-    // Falls vor oder nach dem JSON noch zusätzlicher Text steht, nur den Teil
-    // zwischen der ersten { und der letzten } verwenden.
     const firstBrace = cleaned.indexOf("{");
     const lastBrace = cleaned.lastIndexOf("}");
     if (firstBrace > -1 && lastBrace > firstBrace) {
