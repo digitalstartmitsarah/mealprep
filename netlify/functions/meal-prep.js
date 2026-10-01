@@ -83,7 +83,7 @@ Wichtig für Tempo und Länge: Fass dich kurz. Jede Beschreibung einer Mahlzeit 
       },
       body: JSON.stringify({
         model: "claude-haiku-4-5-20251001",
-        max_tokens: 2200,
+        max_tokens: 4000,
         system: systemPrompt,
         messages: [{ role: "user", content: userContent }],
       }),
@@ -101,13 +101,29 @@ Wichtig für Tempo und Länge: Fass dich kurz. Jede Beschreibung einer Mahlzeit 
       .join("\n")
       .trim();
 
-    const cleaned = rawText.replace(/^```json/i, "").replace(/^```/, "").replace(/```$/, "").trim();
+    let cleaned = rawText.replace(/^```json/i, "").replace(/^```/, "").replace(/```$/, "").trim();
+
+    // Falls vor oder nach dem JSON noch zusätzlicher Text steht, nur den Teil
+    // zwischen der ersten { und der letzten } verwenden.
+    const firstBrace = cleaned.indexOf("{");
+    const lastBrace = cleaned.lastIndexOf("}");
+    if (firstBrace > -1 && lastBrace > firstBrace) {
+      cleaned = cleaned.slice(firstBrace, lastBrace + 1);
+    }
 
     let result;
     try {
       result = JSON.parse(cleaned);
     } catch (e) {
-      return { statusCode: 502, body: JSON.stringify({ error: "Konnte Ergebnis nicht lesen" }) };
+      const truncated = apiData.stop_reason === "max_tokens";
+      return {
+        statusCode: 502,
+        body: JSON.stringify({
+          error: truncated
+            ? "Antwort war zu lang und wurde abgeschnitten"
+            : "Konnte Ergebnis nicht lesen",
+        }),
+      };
     }
 
     return {
