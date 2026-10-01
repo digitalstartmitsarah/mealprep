@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Dein Meal-Prep-Planer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#23241f;
+    --paper:#F8F5EC;
+    --paper-raised:#FFFFFF;
+    --forest:#2F4A3C;
+    --forest-soft:#CFE0D3;
+    --mustard:#C9972B;
+    --line:#E2DCC9;
+    --muted:#6c6a5c;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'Inter',sans-serif;
+    min-height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:32px 18px;
+    line-height:1.55;
+  }
+  .card{
+    width:100%;
+    max-width:680px;
+    background:var(--paper-raised);
+    border:1px solid var(--line);
+    border-radius:22px;
+    padding:44px 40px 40px;
+    position:relative;
+    overflow:hidden;
+  }
+  .card::before{
+    content:"";
+    position:absolute;
+    top:-70px; right:-70px;
+    width:220px; height:220px;
+    border-radius:50%;
+    border:1px solid var(--forest-soft);
+  }
+  .eyebrow{ font-size:13px; color:var(--muted); margin:0 0 6px; }
+  h1{
+    font-family:'Fraunces',serif;
+    font-weight:500;
+    font-size:32px;
+    line-height:1.15;
+    margin:0 0 18px;
+    max-width:460px;
+  }
+  .intro-text{ font-size:16px; color:var(--muted); max-width:480px; margin:0 0 30px; }
+  .progress-wrap{ display:flex; align-items:center; gap:10px; margin-bottom:28px; }
+  .progress-track{ flex:1; height:4px; background:var(--line); border-radius:4px; overflow:hidden; }
+  .progress-fill{ height:100%; background:var(--mustard); width:0%; transition:width .4s ease; }
+  .progress-label{ font-size:13px; color:var(--muted); white-space:nowrap; }
+  .question{ font-family:'Fraunces',serif; font-weight:500; font-size:23px; line-height:1.3; margin:0 0 8px; }
+  .question-hint{ font-size:14px; color:var(--muted); margin:0 0 20px; }
+  .options{ display:flex; flex-direction:column; gap:10px; margin-bottom:10px; }
+  .option{
+    text-align:left; background:var(--paper); border:1px solid var(--line);
+    border-radius:14px; padding:15px 18px; font-size:15px; color:var(--ink);
+    font-family:'Inter',sans-serif; cursor:pointer; transition:border-color .2s ease, background .2s ease;
+  }
+  .option:hover{ border-color:var(--mustard); background:#FFFDF7; }
+  .option.selected{ border-color:var(--mustard); background:#FFF6E3; }
+  textarea, input[type=text]{
+    width:100%; border:1px solid var(--line); border-radius:14px;
+    padding:14px 16px; font-family:'Inter',sans-serif; font-size:15px;
+    color:var(--ink); background:var(--paper); resize:vertical; min-height:90px;
+  }
+  input[type=text]{ min-height:unset; }
+  textarea:focus, input[type=text]:focus{ outline:none; border-color:var(--mustard); }
+  .nav-row{ display:flex; justify-content:space-between; align-items:center; margin-top:24px; }
+  .btn-back{ background:none; border:none; font-size:14px; color:var(--muted); cursor:pointer; padding:8px 4px; }
+  .btn-back:disabled{ opacity:0; pointer-events:none; }
+  .btn-primary{
+    background:var(--forest); color:#fff; border:none; border-radius:12px;
+    padding:14px 26px; font-size:15px; font-weight:500; cursor:pointer; transition:opacity .2s ease;
+  }
+  .btn-primary:disabled{ opacity:.35; cursor:not-allowed; }
+  .btn-primary:hover:not(:disabled){ opacity:.9; }
+  .btn-skip{ background:none; border:none; font-size:13px; color:var(--muted); cursor:pointer; text-decoration:underline; margin-top:8px; }
+  .screen{ display:none; }
+  .screen.active{ display:block; }
+
+  .loading{ text-align:center; padding:30px 0; }
+  .spinner{
+    width:38px; height:38px; border:3px solid var(--line); border-top-color:var(--mustard);
+    border-radius:50%; margin:0 auto 20px; animation:spin 1s linear infinite;
+  }
+  @keyframes spin{ to{ transform:rotate(360deg); } }
+  .loading p{ color:var(--muted); font-size:14.5px; }
+
+  .result-kicker{ font-size:13px; color:var(--mustard); font-weight:600; margin:0 0 6px; }
+  .result-title{ font-family:'Fraunces',serif; font-weight:500; font-size:29px; line-height:1.2; margin:0 0 14px; }
+  .result-block{ margin:24px 0; padding-top:20px; border-top:1px solid var(--line); }
+  .result-block h3{ font-family:'Fraunces',serif; font-weight:500; font-size:16.5px; margin:0 0 10px; color:var(--forest); }
+  .result-block p{ margin:0 0 8px; font-size:15px; }
+
+  .day-card{ background:var(--paper); border:1px solid var(--line); border-radius:12px; padding:14px 16px; margin-bottom:10px; }
+  .day-name{ font-weight:600; font-size:14.5px; margin-bottom:8px; }
+  .meal-row{ display:flex; gap:10px; font-size:14px; margin-bottom:6px; }
+  .meal-type{ color:var(--mustard); font-weight:600; min-width:70px; flex-shrink:0; }
+  .meal-desc{ color:var(--ink); }
+
+  .shop-cat{ margin-bottom:14px; }
+  .shop-cat-name{ font-weight:600; font-size:14px; color:var(--forest); margin-bottom:6px; }
+  .chip-row{ display:flex; flex-wrap:wrap; gap:8px; }
+  .chip{ background:var(--paper); border:1px solid var(--line); border-radius:999px; padding:6px 13px; font-size:13.5px; color:var(--ink); }
+
+  .plain-list{ margin:0; padding-left:20px; display:flex; flex-direction:column; gap:8px; font-size:15px; }
+  .restart{ margin-top:32px; }
+  .restart button{
+    background:none; border:1px solid var(--line); border-radius:10px; padding:11px 18px;
+    font-size:14px; color:var(--muted); cursor:pointer;
+  }
+  .restart button:hover{ border-color:var(--mustard); color:var(--ink); }
+  .error-box{ background:#FCEFEF; border:1px solid #E8B9B9; border-radius:12px; padding:16px 18px; font-size:14.5px; color:#7A2E2E; }
+  @media (max-width:480px){
+    .card{ padding:32px 22px 30px; }
+    h1{ font-size:26px; }
+    .question{ font-size:19px; }
+    .result-title{ font-size:23px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="card">
+
+  <div id="screen-intro" class="screen active">
+    <p class="eyebrow">Meal Prep</p>
+    <h1>Dein Meal-Prep-Planer</h1>
+    <p class="intro-text">Ein paar gezielte Fragen zu deinem Alltag, deinen Vorlieben und deiner Zeit, und du bekommst einen individuellen Wochenplan mit Rezeptideen und passender Einkaufsliste, abgestimmt genau auf dich.</p>
+    <div class="nav-row" style="justify-content:flex-end; margin-top:0;">
+      <button class="btn-primary" onclick="goToQuiz()">Los geht's</button>
+    </div>
+  </div>
+
+  <div id="screen-quiz" class="screen">
+    <div class="progress-wrap">
+      <div class="progress-track"><div class="progress-fill" id="progress-fill"></div></div>
+      <span class="progress-label" id="progress-label"></span>
+    </div>
+    <p class="question" id="question-text"></p>
+    <p class="question-hint" id="question-hint"></p>
+    <div id="answer-area"></div>
+    <div class="nav-row">
+      <button class="btn-back" id="btn-back" onclick="prevQuestion()">Zurück</button>
+      <button class="btn-primary" id="btn-next" onclick="nextQuestion()" disabled>Weiter</button>
+    </div>
+  </div>
+
+  <div id="screen-loading" class="screen">
+    <div class="loading">
+      <div class="spinner"></div>
+      <p>Dein Meal-Prep-Plan wird gerade erstellt, das dauert einen kleinen Moment.</p>
+    </div>
+  </div>
+
+  <div id="screen-error" class="screen">
+    <div class="error-box" id="error-text"></div>
+    <div class="nav-row" style="justify-content:flex-start;">
+      <button class="btn-primary" onclick="submitQuiz()">Nochmal versuchen</button>
+    </div>
+  </div>
+
+  <div id="screen-result" class="screen">
+    <p class="result-kicker">Dein Wochenplan</p>
+    <h2 class="result-title" id="r-titel"></h2>
+    <p id="r-intro" style="color:var(--muted); font-size:15px;"></p>
+
+    <div class="result-block">
+      <h3>Dein Wochenplan</h3>
+      <div id="r-plan"></div>
+    </div>
+
+    <div class="result-block">
+      <h3>Deine Einkaufsliste</h3>
+      <div id="r-einkauf"></div>
+    </div>
+
+    <div class="result-block">
+      <h3>Prep Tipps für die Woche</h3>
+      <ul class="plain-list" id="r-preptipps"></ul>
+    </div>
+
+    <div class="result-block">
+      <h3>Weitere Tipps</h3>
+      <ul class="plain-list" id="r-tipps"></ul>
+    </div>
+
+    <div class="restart"><button onclick="restart()">Noch einmal starten</button></div>
+  </div>
+
+</div>
+
+<script>
+const FUNCTION_URL = "/.netlify/functions/meal-prep";
+
+const questions = [
+  { key:"ziel", type:"single", text:"Was ist dein Hauptziel beim Meal Prep?",
+    options:["Abnehmen oder Gewicht halten","Mehr Energie im Alltag","Einfach gesünder essen","Zeit und Stress im Alltag sparen","Muskelaufbau oder Fitnessziele"] },
+  { key:"ernaehrungsform", type:"single", text:"Welche Ernährungsform passt zu dir?",
+    options:["Keine Einschränkung, ich esse alles","Vegetarisch","Vegan","Low Carb","Viel Eiweiß, wenig verarbeitet"] },
+  { key:"unvertraeglichkeiten", type:"text", text:"Hast du Allergien oder Unverträglichkeiten, die berücksichtigt werden müssen?", hint:"Wenn nicht, einfach kurz 'nein' schreiben." },
+  { key:"lieblingszutaten", type:"text", text:"Welche Zutaten oder Gerichte isst du besonders gern?" },
+  { key:"nicht_mag", type:"text", text:"Gibt es Zutaten, die du gar nicht magst oder meiden willst?", hint:"Optional." },
+  { key:"personen", type:"single", text:"Für wie viele Personen soll geplant werden?",
+    options:["Nur für mich","2 Personen","3 bis 4 Personen","Mehr als 4 Personen"] },
+  { key:"tage", type:"single", text:"Für wie viele Tage soll der Plan sein?",
+    options:["3 Tage","5 Tage, die Arbeitswoche","7 Tage, die ganze Woche"] },
+  { key:"mahlzeiten", type:"multi", text:"Welche Mahlzeiten sollen eingeplant werden?", hint:"Mehrfachauswahl möglich.",
+    options:["Frühstück","Mittagessen","Abendessen","Snacks zwischendurch"] },
+  { key:"kochzeit", type:"single", text:"Wie viel Zeit willst du pro Tag fürs Kochen einplanen?",
+    options:["Unter 15 Minuten, es muss schnell gehen","15 bis 30 Minuten","30 bis 60 Minuten","Zeit ist egal, Hauptsache lecker"] },
+  { key:"prep_stil", type:"single", text:"Wie willst du vorbereiten?",
+    options:["Alles am Wochenende fürs Vorkochen","Lieber jeden Tag frisch, aber schnell","Mischung aus beidem"] },
+  { key:"kuechenausstattung", type:"multi", text:"Welche Küchengeräte stehen dir zur Verfügung?", hint:"Mehrfachauswahl möglich.",
+    options:["Backofen","Airfryer","Thermomix oder ähnliches","Mikrowelle zum Aufwärmen","Nur Herd und Topf, keine Extras"] },
+  { key:"budget", type:"single", text:"Wie ist dein Budget für Lebensmittel einzuschätzen?",
+    options:["Eher sparsam","Mittel","Flexibel, Qualität ist mir wichtiger als Preis"] },
+  { key:"kueche_stil", type:"multi", text:"Welche Geschmacksrichtungen magst du besonders?", hint:"Mehrfachauswahl möglich.",
+    options:["Mediterran","Asiatisch","Klassisch deutsch oder österreichisch","Orientalisch","Bunt gemischt, Hauptsache abwechslungsreich"] },
+  { key:"reste", type:"single", text:"Sollen Reste bewusst weiterverwendet werden?",
+    options:["Ja, möglichst wenig Lebensmittel verschwenden","Nicht so wichtig, jeden Tag etwas Neues"] }
+];
+
+const answers = {};
+let currentIndex = 0;
+
+function goToQuiz(){
+  document.getElementById("screen-intro").classList.remove("active");
+  document.getElementById("screen-quiz").classList.add("active");
+  currentIndex = 0;
+  renderQuestion();
+}
+
+function isOptional(key){
+  return ["nicht_mag"].includes(key);
+}
+
+function renderQuestion(){
+  const q = questions[currentIndex];
+  document.getElementById("question-text").textContent = q.text;
+  document.getElementById("question-hint").textContent = q.hint || "";
+  document.getElementById("progress-label").textContent = "Frage " + (currentIndex+1) + " von " + questions.length;
+  document.getElementById("progress-fill").style.width = (currentIndex / questions.length * 100) + "%";
+  document.getElementById("btn-back").disabled = currentIndex === 0;
+
+  const area = document.getElementById("answer-area");
+  area.innerHTML = "";
+
+  if(q.type === "single"){
+    const wrap = document.createElement("div");
+    wrap.className = "options";
+    q.options.forEach(opt => {
+      const btn = document.createElement("button");
+      btn.className = "option";
+      btn.type = "button";
+      btn.textContent = opt;
+      if(answers[q.key] === opt) btn.classList.add("selected");
+      btn.onclick = () => { answers[q.key] = opt; renderQuestion(); };
+      wrap.appendChild(btn);
+    });
+    area.appendChild(wrap);
+  } else if(q.type === "multi"){
+    if(!Array.isArray(answers[q.key])) answers[q.key] = [];
+    const wrap = document.createElement("div");
+    wrap.className = "options";
+    q.options.forEach(opt => {
+      const btn = document.createElement("button");
+      btn.className = "option";
+      btn.type = "button";
+      btn.textContent = opt;
+      if(answers[q.key].includes(opt)) btn.classList.add("selected");
+      btn.onclick = () => {
+        const idx = answers[q.key].indexOf(opt);
+        if(idx > -1){ answers[q.key].splice(idx,1); }
+        else { answers[q.key].push(opt); }
+        renderQuestion();
+      };
+      wrap.appendChild(btn);
+    });
+    area.appendChild(wrap);
+  } else if(q.type === "text"){
+    const ta = document.createElement("textarea");
+    ta.placeholder = "Deine Antwort ...";
+    ta.value = answers[q.key] || "";
+    ta.oninput = () => { answers[q.key] = ta.value; updateNextState(); };
+    area.appendChild(ta);
+  }
+
+  if(isOptional(q.key)){
+    const skip = document.createElement("button");
+    skip.className = "btn-skip";
+    skip.type = "button";
+    skip.textContent = "Überspringen";
+    skip.onclick = () => { answers[q.key] = q.type === "multi" ? [] : ""; nextQuestion(); };
+    area.appendChild(skip);
+  }
+
+  updateNextState();
+}
+
+function updateNextState(){
+  const q = questions[currentIndex];
+  let filled = false;
+  const val = answers[q.key];
+  if(q.type === "multi") filled = Array.isArray(val) && val.length > 0;
+  else filled = !!(val && val.toString().trim().length > 0);
+  document.getElementById("btn-next").disabled = !filled;
+  document.getElementById("btn-next").textContent = currentIndex === questions.length - 1 ? "Plan erstellen" : "Weiter";
+}
+
+function nextQuestion(){
+  if(currentIndex < questions.length - 1){
+    currentIndex++;
+    renderQuestion();
+  } else {
+    submitQuiz();
+  }
+}
+
+function prevQuestion(){
+  if(currentIndex > 0){ currentIndex--; renderQuestion(); }
+}
+
+function restart(){
+  Object.keys(answers).forEach(k => delete answers[k]);
+  document.getElementById("screen-result").classList.remove("active");
+  document.getElementById("screen-error").classList.remove("active");
+  document.getElementById("screen-intro").classList.add("active");
+}
+
+async function submitQuiz(){
+  document.getElementById("screen-quiz").classList.remove("active");
+  document.getElementById("screen-error").classList.remove("active");
+  document.getElementById("screen-loading").classList.add("active");
+
+  try{
+    const res = await fetch(FUNCTION_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ answers })
+    });
+    if(!res.ok) throw new Error("Serverfehler");
+    const data = await res.json();
+    renderResult(data);
+    document.getElementById("screen-loading").classList.remove("active");
+    document.getElementById("screen-result").classList.add("active");
+  } catch(err){
+    document.getElementById("screen-loading").classList.remove("active");
+    document.getElementById("error-text").textContent = "Da ist leider etwas schiefgelaufen. Versuch es gern noch einmal.";
+    document.getElementById("screen-error").classList.add("active");
+  }
+}
+
+function renderResult(data){
+  document.getElementById("r-titel").textContent = data.titel || "";
+  document.getElementById("r-intro").textContent = data.intro || "";
+
+  const planEl = document.getElementById("r-plan");
+  planEl.innerHTML = "";
+  (data.wochenplan || []).forEach(tag => {
+    const card = document.createElement("div");
+    card.className = "day-card";
+    const name = document.createElement("div");
+    name.className = "day-name";
+    name.textContent = tag.tag || "";
+    card.appendChild(name);
+    (tag.mahlzeiten || []).forEach(m => {
+      const row = document.createElement("div");
+      row.className = "meal-row";
+      const type = document.createElement("span");
+      type.className = "meal-type";
+      type.textContent = m.typ || "";
+      const desc = document.createElement("span");
+      desc.className = "meal-desc";
+      desc.textContent = m.name + (m.beschreibung ? " — " + m.beschreibung : "");
+      row.appendChild(type);
+      row.appendChild(desc);
+      card.appendChild(row);
+    });
+    planEl.appendChild(card);
+  });
+
+  const einkaufEl = document.getElementById("r-einkauf");
+  einkaufEl.innerHTML = "";
+  (data.einkaufsliste || []).forEach(kat => {
+    const block = document.createElement("div");
+    block.className = "shop-cat";
+    const name = document.createElement("div");
+    name.className = "shop-cat-name";
+    name.textContent = kat.kategorie || "";
+    block.appendChild(name);
+    const row = document.createElement("div");
+    row.className = "chip-row";
+    (kat.items || []).forEach(item => {
+      const chip = document.createElement("span");
+      chip.className = "chip";
+      chip.textContent = item;
+      row.appendChild(chip);
+    });
+    block.appendChild(row);
+    einkaufEl.appendChild(block);
+  });
+
+  fillList("r-preptipps", data.prep_tipps);
+  fillList("r-tipps", data.tipps);
+}
+
+function fillList(id, arr){
+  const el = document.getElementById(id);
+  el.innerHTML = "";
+  (arr || []).forEach(item => {
+    const li = document.createElement("li");
+    li.textContent = item;
+    el.appendChild(li);
+  });
+}
+</script>
+
+</body>
+</html>
