@@ -110,9 +110,23 @@
 
   .day-card{ background:var(--paper); border:1px solid var(--line); border-radius:12px; padding:14px 16px; margin-bottom:10px; }
   .day-name{ font-weight:600; font-size:14.5px; margin-bottom:8px; }
-  .meal-row{ display:flex; gap:10px; font-size:14px; margin-bottom:6px; }
+  .meal-row{ margin-bottom:10px; }
+  .meal-head{ display:flex; gap:10px; font-size:14px; }
   .meal-type{ color:var(--mustard); font-weight:600; min-width:70px; flex-shrink:0; }
   .meal-desc{ color:var(--ink); }
+  .meal-zubereitung{ margin:0; padding:0; }
+  .meal-zubereitung summary{ cursor:pointer; font-size:13px; color:var(--muted); margin:4px 0 0 80px; list-style:none; }
+  .meal-zubereitung summary::-webkit-details-marker{ display:none; }
+  .meal-zubereitung summary::before{ content:"Zubereitung anzeigen"; text-decoration:underline; }
+  .meal-zubereitung[open] summary::before{ content:"Zubereitung ausblenden"; }
+  .meal-zubereitung-text{ font-size:13.5px; color:var(--ink); margin:6px 0 0 80px; white-space:pre-line; }
+
+  .whatsapp-share{ margin-top:10px; }
+  .whatsapp-share button{
+    background:#25D366; color:#fff; border:none; border-radius:10px; padding:12px 20px;
+    font-size:14.5px; font-weight:500; cursor:pointer; display:inline-flex; align-items:center; gap:8px;
+  }
+  .whatsapp-share button:hover{ opacity:.9; }
 
   .shop-cat{ margin-bottom:14px; }
   .shop-cat-name{ font-weight:600; font-size:14px; color:var(--forest); margin-bottom:6px; }
@@ -199,6 +213,10 @@
     <div class="result-block">
       <h3>Weitere Tipps</h3>
       <ul class="plain-list" id="r-tipps"></ul>
+    </div>
+
+    <div class="whatsapp-share">
+      <button onclick="sendToWhatsapp()">Per WhatsApp senden</button>
     </div>
 
     <div class="restart"><button onclick="restart()">Noch einmal starten</button></div>
@@ -367,7 +385,10 @@ async function submitQuiz(){
   }
 }
 
+let lastResult = null;
+
 function renderResult(data){
+  lastResult = data;
   document.getElementById("r-titel").textContent = data.titel || "";
   document.getElementById("r-intro").textContent = data.intro || "";
 
@@ -383,14 +404,31 @@ function renderResult(data){
     (tag.mahlzeiten || []).forEach(m => {
       const row = document.createElement("div");
       row.className = "meal-row";
+
+      const head = document.createElement("div");
+      head.className = "meal-head";
       const type = document.createElement("span");
       type.className = "meal-type";
       type.textContent = m.typ || "";
       const desc = document.createElement("span");
       desc.className = "meal-desc";
-      desc.textContent = m.name + (m.beschreibung ? " — " + m.beschreibung : "");
-      row.appendChild(type);
-      row.appendChild(desc);
+      desc.textContent = m.name + (m.beschreibung ? ", " + m.beschreibung : "");
+      head.appendChild(type);
+      head.appendChild(desc);
+      row.appendChild(head);
+
+      if(m.zubereitung){
+        const details = document.createElement("details");
+        details.className = "meal-zubereitung";
+        const summary = document.createElement("summary");
+        const text = document.createElement("div");
+        text.className = "meal-zubereitung-text";
+        text.textContent = m.zubereitung;
+        details.appendChild(summary);
+        details.appendChild(text);
+        row.appendChild(details);
+      }
+
       card.appendChild(row);
     });
     planEl.appendChild(card);
@@ -419,6 +457,40 @@ function renderResult(data){
 
   fillList("r-preptipps", data.prep_tipps);
   fillList("r-tipps", data.tipps);
+}
+
+function buildWhatsappText(data){
+  const lines = [];
+  lines.push(data.titel || "Mein Meal Prep Plan");
+  if(data.intro) lines.push(data.intro);
+  lines.push("");
+  (data.wochenplan || []).forEach(tag => {
+    lines.push(tag.tag || "");
+    (tag.mahlzeiten || []).forEach(m => {
+      lines.push((m.typ || "") + ": " + (m.name || "") + (m.beschreibung ? ", " + m.beschreibung : ""));
+      if(m.zubereitung){
+        lines.push(m.zubereitung);
+      }
+    });
+    lines.push("");
+  });
+  lines.push("Einkaufsliste");
+  (data.einkaufsliste || []).forEach(kat => {
+    lines.push(kat.kategorie + ": " + (kat.items || []).join(", "));
+  });
+  if((data.prep_tipps || []).length){
+    lines.push("");
+    lines.push("Prep Tipps");
+    data.prep_tipps.forEach(t => lines.push(t));
+  }
+  return lines.join("\n");
+}
+
+function sendToWhatsapp(){
+  if(!lastResult) return;
+  const text = buildWhatsappText(lastResult);
+  const url = "https://wa.me/?text=" + encodeURIComponent(text);
+  window.open(url, "_blank");
 }
 
 function fillList(id, arr){
