@@ -69,7 +69,9 @@ Antworte ausschließlich mit einem validen JSON Objekt, ohne Markdown, ohne Code
   "tipps": ["Ein bis zwei weitere hilfreiche Tipps passend zu Ziel, Budget oder Küchenausstattung"]
 }
 
-Nur die Mahlzeiten einplanen, die ausdrücklich gewünscht wurden. Die Anzahl der Tage im Wochenplan muss genau der gewählten Anzahl Tage entsprechen. Die Einkaufsliste muss zu den tatsächlich verwendeten Zutaten im Wochenplan passen, keine Zutaten auflisten, die nirgendwo im Plan vorkommen. Berücksichtige Allergien, Unverträglichkeiten und gemiedene Zutaten unbedingt, verwende niemals Zutaten, die ausgeschlossen wurden. Richte dich nach dem angegebenen Budget und der verfügbaren Kochzeit. Schreib in einem warmen, direkten Du Ton, ohne Gedankenstriche, ohne Floskeln. Sei konkret statt allgemein, erfinde keine Fakten über die Person, die nicht aus ihren Antworten hervorgehen.`;
+Nur die Mahlzeiten einplanen, die ausdrücklich gewünscht wurden. Die Anzahl der Tage im Wochenplan muss genau der gewählten Anzahl Tage entsprechen. Die Einkaufsliste muss zu den tatsächlich verwendeten Zutaten im Wochenplan passen, keine Zutaten auflisten, die nirgendwo im Plan vorkommen. Berücksichtige Allergien, Unverträglichkeiten und gemiedene Zutaten unbedingt, verwende niemals Zutaten, die ausgeschlossen wurden. Richte dich nach dem angegebenen Budget und der verfügbaren Kochzeit. Schreib in einem warmen, direkten Du Ton, ohne Gedankenstriche, ohne Floskeln. Sei konkret statt allgemein, erfinde keine Fakten über die Person, die nicht aus ihren Antworten hervorgehen.
+
+Wichtig für Tempo und Länge: Fass dich kurz. Jede Beschreibung einer Mahlzeit ist maximal ein halber Satz, kein ganzer Absatz. Namen der Gerichte kurz halten. Maximal 3 prep_tipps und maximal 2 tipps. Keine langen Erklärungen, direkt auf den Punkt.`;
 
   try {
     const apiRes = await fetch("https://api.anthropic.com/v1/messages", {
@@ -80,8 +82,8 @@ Nur die Mahlzeiten einplanen, die ausdrücklich gewünscht wurden. Die Anzahl de
         "anthropic-version": "2023-06-01",
       },
       body: JSON.stringify({
-        model: "claude-sonnet-4-6",
-        max_tokens: 3000,
+        model: "claude-haiku-4-5-20251001",
+        max_tokens: 2200,
         system: systemPrompt,
         messages: [{ role: "user", content: userContent }],
       }),
