@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="de">
 <head>
@@ -209,9 +210,9 @@
 const FUNCTION_URL = "/.netlify/functions/meal-prep";
 
 const questions = [
-  { key:"ziel", type:"single", text:"Was ist dein Hauptziel beim Meal Prep?",
+  { key:"ziel", type:"multi", text:"Was ist dein Hauptziel beim Meal Prep?", hint:"Mehrfachauswahl möglich.",
     options:["Abnehmen oder Gewicht halten","Mehr Energie im Alltag","Einfach gesünder essen","Zeit und Stress im Alltag sparen","Muskelaufbau oder Fitnessziele"] },
-  { key:"ernaehrungsform", type:"single", text:"Welche Ernährungsform passt zu dir?",
+  { key:"ernaehrungsform", type:"multi", text:"Welche Ernährungsform passt zu dir?", hint:"Mehrfachauswahl möglich.",
     options:["Keine Einschränkung, ich esse alles","Vegetarisch","Vegan","Low Carb","Viel Eiweiß, wenig verarbeitet"] },
   { key:"unvertraeglichkeiten", type:"text", text:"Hast du Allergien oder Unverträglichkeiten, die berücksichtigt werden müssen?", hint:"Wenn nicht, einfach kurz 'nein' schreiben." },
   { key:"lieblingszutaten", type:"text", text:"Welche Zutaten oder Gerichte isst du besonders gern?" },
