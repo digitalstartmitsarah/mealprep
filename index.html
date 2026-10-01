@@ -27,11 +27,17 @@
     font-family:'Inter',sans-serif;
     min-height:100vh;
     display:flex;
+    flex-direction:column;
     align-items:center;
     justify-content:center;
     padding:32px 18px;
     line-height:1.55;
   }
+  .site-footer{
+    width:100%; max-width:680px; margin:18px auto 0; text-align:center;
+    font-size:12.5px; color:var(--muted);
+  }
+  .site-footer a{ color:var(--muted); }
   .card{
     width:100%;
     max-width:680px;
@@ -50,6 +56,9 @@
     border-radius:50%;
     border:1px solid var(--forest-soft);
   }
+  .welcome-row{ display:flex; align-items:center; gap:16px; margin:0 0 24px; padding-bottom:22px; border-bottom:1px solid var(--line); }
+  .welcome-photo{ width:64px; height:64px; border-radius:50%; object-fit:cover; flex-shrink:0; border:2px solid var(--forest-soft); }
+  .welcome-text{ font-size:14px; color:var(--muted); margin:0; }
   .eyebrow{ font-size:13px; color:var(--muted); margin:0 0 6px; }
   h1{
     font-family:'Fraunces',serif;
@@ -154,6 +163,10 @@
 <div class="card">
 
   <div id="screen-intro" class="screen active">
+    <div class="welcome-row">
+      <img class="welcome-photo" src="sarah.jpg" alt="Sarah Plainer">
+      <p class="welcome-text">Herzlich willkommen bei meinem Meal-Prep-Planer! Schön, dass du da bist. Beantworte ein paar kurze Fragen zu deinem Alltag, und du bekommst deinen eigenen Wochenplan mit Einkaufsliste, genau auf dich abgestimmt. Viel Spaß bei der Umsetzung! Falls du Fragen hast, schreib mir jederzeit gern.</p>
+    </div>
     <p class="eyebrow">Meal Prep</p>
     <h1>Dein Meal-Prep-Planer</h1>
     <p class="intro-text">Ein paar gezielte Fragen zu deinem Alltag, deinen Vorlieben und deiner Zeit, und du bekommst einen individuellen Wochenplan mit Rezeptideen und passender Einkaufsliste, abgestimmt genau auf dich.</p>
@@ -222,6 +235,10 @@
     <div class="restart"><button onclick="restart()">Noch einmal starten</button></div>
   </div>
 
+</div>
+
+<div class="site-footer">
+  <p>&copy; Sarah Plainer &middot; <a href="https://facelessmitsarah.at/legal/240244326/contact" target="_blank" rel="noopener">Impressum</a> &middot; <a href="https://facelessmitsarah.at/privacy" target="_blank" rel="noopener">Datenschutz</a> &middot; <a href="https://facelessmitsarah.at/tos" target="_blank" rel="noopener">AGB</a></p>
 </div>
 
 <script>
