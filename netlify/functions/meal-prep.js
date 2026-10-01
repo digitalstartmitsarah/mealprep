@@ -55,8 +55,8 @@ Antworte ausschließlich mit einem validen JSON Objekt, ohne Markdown, ohne Code
     {
       "tag": "Tag 1",
       "mahlzeiten": [
-        {"typ": "Frühstück", "name": "Name des Gerichts", "beschreibung": "Kurze, konkrete Beschreibung in einem halben Satz"},
-        {"typ": "Mittag", "name": "...", "beschreibung": "..."}
+        {"typ": "Frühstück", "name": "Name des Gerichts", "beschreibung": "Kurze, konkrete Beschreibung in einem halben Satz", "zubereitung": "Zubereitung in 2 bis 4 kurzen, nummerierten Schritten, durch Zeilenumbruch getrennt, praxistauglich und einfach"},
+        {"typ": "Mittag", "name": "...", "beschreibung": "...", "zubereitung": "..."}
       ]
     }
   ],
@@ -71,7 +71,7 @@ Antworte ausschließlich mit einem validen JSON Objekt, ohne Markdown, ohne Code
 
 Nur die Mahlzeiten einplanen, die ausdrücklich gewünscht wurden. Die Anzahl der Tage im Wochenplan muss genau der gewählten Anzahl Tage entsprechen. Die Einkaufsliste muss zu den tatsächlich verwendeten Zutaten im Wochenplan passen, keine Zutaten auflisten, die nirgendwo im Plan vorkommen. Berücksichtige Allergien, Unverträglichkeiten und gemiedene Zutaten unbedingt, verwende niemals Zutaten, die ausgeschlossen wurden. Richte dich nach dem angegebenen Budget und der verfügbaren Kochzeit. Schreib in einem warmen, direkten Du Ton, ohne Gedankenstriche, ohne Floskeln. Sei konkret statt allgemein, erfinde keine Fakten über die Person, die nicht aus ihren Antworten hervorgehen.
 
-Wichtig für Tempo und Länge: Fass dich kurz. Jede Beschreibung einer Mahlzeit ist maximal ein halber Satz, kein ganzer Absatz. Namen der Gerichte kurz halten. Maximal 3 prep_tipps und maximal 2 tipps. Keine langen Erklärungen, direkt auf den Punkt.`;
+Wichtig für Tempo und Länge: Fass dich kurz. Jede Beschreibung einer Mahlzeit ist maximal ein halber Satz, kein ganzer Absatz. Die Zubereitung pro Mahlzeit hat maximal 4 kurze Schritte, keine langen Erklärungen pro Schritt. Namen der Gerichte kurz halten. Maximal 3 prep_tipps und maximal 2 tipps. Keine langen Erklärungen, direkt auf den Punkt.`;
 
   try {
     const apiRes = await fetch("https://api.anthropic.com/v1/messages", {
@@ -83,7 +83,7 @@ Wichtig für Tempo und Länge: Fass dich kurz. Jede Beschreibung einer Mahlzeit 
       },
       body: JSON.stringify({
         model: "claude-haiku-4-5-20251001",
-        max_tokens: 4000,
+        max_tokens: 4500,
         system: systemPrompt,
         messages: [{ role: "user", content: userContent }],
       }),
