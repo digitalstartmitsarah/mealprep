@@ -243,6 +243,7 @@
 
 <script>
 const FUNCTION_URL = "/.netlify/functions/meal-prep";
+const LISTE_FUNCTION_URL = "/.netlify/functions/meal-prep-liste";
 
 const questions = [
   { key:"ziel", type:"multi", text:"Was ist dein Hauptziel beim Meal Prep?", hint:"Mehrfachauswahl möglich.",
@@ -392,6 +393,26 @@ async function submitQuiz(){
     });
     if(!res.ok) throw new Error("Serverfehler");
     const data = await res.json();
+
+    // Zweiter, kurzer Schritt: Einkaufsliste und Tipps zum fertigen Wochenplan holen.
+    // Falls dieser Schritt ausnahmsweise fehlschlägt, wird der Wochenplan trotzdem
+    // angezeigt, nur ohne Einkaufsliste, statt den ganzen Vorgang abzubrechen.
+    try{
+      const listeRes = await fetch(LISTE_FUNCTION_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ answers, wochenplan: data.wochenplan })
+      });
+      if(listeRes.ok){
+        const listeData = await listeRes.json();
+        data.einkaufsliste = listeData.einkaufsliste;
+        data.prep_tipps = listeData.prep_tipps;
+        data.tipps = listeData.tipps;
+      }
+    } catch(listeErr){
+      // Wochenplan bleibt trotzdem nutzbar, einfach ohne Einkaufsliste.
+    }
+
     renderResult(data);
     document.getElementById("screen-loading").classList.remove("active");
     document.getElementById("screen-result").classList.add("active");
