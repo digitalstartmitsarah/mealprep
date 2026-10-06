@@ -56,9 +56,12 @@
     border-radius:50%;
     border:1px solid var(--forest-soft);
   }
-  .welcome-row{ display:flex; align-items:center; gap:16px; margin:0 0 24px; padding-bottom:22px; border-bottom:1px solid var(--line); }
-  .welcome-photo{ width:64px; height:64px; border-radius:50%; object-fit:cover; flex-shrink:0; border:2px solid var(--forest-soft); }
-  .welcome-text{ font-size:14px; color:var(--muted); margin:0; }
+  .welcome-hero{ text-align:center; margin:0 0 26px; padding-bottom:26px; border-bottom:1px solid var(--line); }
+  .welcome-photo{ width:170px; height:170px; border-radius:50%; object-fit:cover; border:4px solid var(--forest-soft); box-shadow:0 6px 18px rgba(47,74,60,.15); }
+  .welcome-name{ font-family:'Fraunces',serif; font-size:18px; margin:14px 0 0; color:var(--forest); }
+  .intro-section{ margin:0 0 20px; }
+  .intro-section h3{ font-family:'Fraunces',serif; font-weight:500; font-size:17px; color:var(--forest); margin:0 0 6px; }
+  .intro-section p{ font-size:15px; color:var(--muted); margin:0; }
   .eyebrow{ font-size:13px; color:var(--muted); margin:0 0 6px; }
   h1{
     font-family:'Fraunces',serif;
@@ -163,13 +166,32 @@
 <div class="card">
 
   <div id="screen-intro" class="screen active">
-    <div class="welcome-row">
+    <div class="welcome-hero">
       <img class="welcome-photo" src="sarah.jpg" alt="Sarah Plainer">
-      <p class="welcome-text">Herzlich willkommen bei meinem Meal-Prep-Planer! Schön, dass du da bist. Beantworte ein paar kurze Fragen zu deinem Alltag, und du bekommst deinen eigenen Wochenplan mit Einkaufsliste, genau auf dich abgestimmt. Viel Spaß bei der Umsetzung! Falls du Fragen hast, schreib mir jederzeit gern.</p>
+      <p class="welcome-name">Hallo, ich bin Sarah</p>
     </div>
+
     <p class="eyebrow">Meal Prep</p>
-    <h1>Dein Meal-Prep-Planer</h1>
-    <p class="intro-text">Ein paar gezielte Fragen zu deinem Alltag, deinen Vorlieben und deiner Zeit, und du bekommst einen individuellen Wochenplan mit Rezeptideen und passender Einkaufsliste, abgestimmt genau auf dich.</p>
+    <h1>Herzlich willkommen bei meinem Meal-Prep-Planer</h1>
+    <p class="intro-text">Schön, dass du da bist! Hier erfährst du kurz, worum es geht, und dann kann es auch schon losgehen.</p>
+
+    <div class="intro-section">
+      <h3>Was ist Meal Prep?</h3>
+      <p>Meal Prep bedeutet, dass du dein Essen für mehrere Tage im Voraus planst und vorbereitest, statt jeden Tag neu zu überlegen, was auf den Tisch kommt. Du planst einmal, kaufst einmal ein und hast dann die ganze Woche über eine Sorge weniger.</p>
+    </div>
+
+    <div class="intro-section">
+      <h3>Warum es meinen Alltag so erleichtert hat</h3>
+      <p>Mit Kindern, Job und Haushalt hat mir Meal Prep enorm geholfen. Die Frage "Was essen wir heute?" ist weg, denn ich weiß schon vorher, was es gibt, und habe alles dafür da. Das spart Zeit, Nerven und Entscheidungen an Tagen, die ohnehin schon voll genug sind.</p>
+    </div>
+
+    <div class="intro-section">
+      <h3>Was dieser Planer für dich macht</h3>
+      <p>Du beantwortest ein paar Fragen zu deinem Ziel, deiner Ernährung, deiner Zeit und deinem Budget. Daraus erstellt der Planer deinen persönlichen Wochenplan, mit einer kurzen Zubereitung zu jedem Gericht und einer passenden Einkaufsliste, die du dir direkt aufs Handy schicken kannst. Dein Mehrwert: Du sparst dir das Planen und Nachdenken und kannst direkt loslegen.</p>
+    </div>
+
+    <p class="intro-text" style="margin-bottom:24px;">Viel Spaß bei der Umsetzung! Wenn du Fragen hast, schreib mir jederzeit gern.</p>
+
     <div class="nav-row" style="justify-content:flex-end; margin-top:0;">
       <button class="btn-primary" onclick="goToQuiz()">Los geht's</button>
     </div>
